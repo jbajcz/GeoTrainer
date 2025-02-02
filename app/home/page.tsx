@@ -3,11 +3,15 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Loader } from '@googlemaps/js-api-loader';
+import MiniMap from '@/app/components/MiniMap';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const panoramaRef = useRef<google.maps.StreetViewPanorama | null>(null);
+  const [showMap, setShowMap] = useState(false);
+  const [currentPosition, setCurrentPosition] = useState<google.maps.LatLng | null>(null);
+  const [selection, setSelection] = useState<{ lat: number; lng: number } | null>(null);
 
   // Initialize Google Maps loader
   const loader = new Loader({
@@ -19,9 +23,10 @@ export default function Home() {
   useEffect(() => {
     loader.load().then((google) => {
       if (mapRef.current) {
-        // Initialize with default location (e.g., New York City)
+        const initialPosition = new google.maps.LatLng(40.7128, -74.0060);
+        setCurrentPosition(initialPosition);
         panoramaRef.current = new google.maps.StreetViewPanorama(mapRef.current, {
-          position: { lat: 40.7128, lng: -74.0060 },
+          position: initialPosition,
           pov: { heading: 0, pitch: 0 },
           zoom: 1,
           addressControl: false,
@@ -42,6 +47,8 @@ export default function Home() {
 
   const getNewLocation = async () => {
     setIsLoading(true);
+    // Clear any existing selection
+    setSelection(null);
     try {
       const google = await loader.load();
       const streetViewService = new google.maps.StreetViewService();
@@ -59,6 +66,7 @@ export default function Home() {
 
           const location = result.data.location;
           if (location?.latLng && panoramaRef.current) {
+            setCurrentPosition(location.latLng);
             panoramaRef.current.setPosition(location.latLng);
             panoramaRef.current.setPov({ heading: 0, pitch: 0 });
           }
@@ -89,7 +97,7 @@ export default function Home() {
       </div>
 
       <div className="z-10">        
-        <div className="relative w-[1200px] h-[800px] mb-4 rounded-lg overflow-hidden">
+        <div className="relative w-[1000px] h-[600px] mb-4 rounded-lg overflow-hidden">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
               Loading...
@@ -99,6 +107,20 @@ export default function Home() {
             ref={mapRef} 
             className="w-full h-full"
           />
+          {currentPosition && (
+            <div 
+              className="absolute bottom-4 right-4 z-10 transition-all duration-300 ease-in-out"
+              onMouseEnter={() => setShowMap(true)}
+              onMouseLeave={() => setShowMap(false)}
+            >
+              <MiniMap 
+                position={currentPosition} 
+                expanded={showMap}
+                setSelection={setSelection}
+                getNewLocation={getNewLocation}
+              />
+            </div>
+          )}
         </div>
 
         <button
