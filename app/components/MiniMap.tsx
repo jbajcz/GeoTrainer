@@ -4,11 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 interface MiniMapProps {
   position: google.maps.LatLng;
   expanded: boolean;
-  setSelection: (coords: { lat: number; lng: number; } | null) => void;
   getNewLocation: () => void;
 }
 
-export default function MiniMap({ position, expanded, setSelection, getNewLocation }: MiniMapProps) {
+export default function MiniMap({ position, expanded, getNewLocation }: MiniMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);  // Track all markers
@@ -57,7 +56,6 @@ export default function MiniMap({ position, expanded, setSelection, getNewLocati
         });
 
         markersRef.current.push(newMarker);  // Add to markers array
-        setSelection({ lat: clickedPosition.lat(), lng: clickedPosition.lng() });
       });
     }
 
@@ -71,7 +69,7 @@ export default function MiniMap({ position, expanded, setSelection, getNewLocati
         polyline.setMap(null);
       }
     };
-  }, [position, expanded, setSelection]);
+  }, [position, expanded]);
 
   const handleSubmit = () => {
     if (markersRef.current.length === 0 || !mapInstanceRef.current) return;
@@ -135,7 +133,6 @@ export default function MiniMap({ position, expanded, setSelection, getNewLocati
     }
     setSubmitted(false);
     setScore(null);
-    setSelection(null);
     getNewLocation();
   };
 
@@ -148,7 +145,7 @@ export default function MiniMap({ position, expanded, setSelection, getNewLocati
           ${expanded ? 'w-[600px] h-[600px]' : 'w-[150px] h-[150px]'}
         `}
       />
-      {expanded && !submitted && markersRef.current.length > 0 && (
+      {expanded && !submitted && (
         <button
           onClick={handleSubmit}
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"

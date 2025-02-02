@@ -5,6 +5,12 @@ import Image from 'next/image';
 import { Loader } from '@googlemaps/js-api-loader';
 import MiniMap from '@/app/components/MiniMap';
 import HintCard from '@/app/components/HintCard';
+import HintSelector from '@/app/components/HintSelector';
+
+interface Hint {
+  imageUrl: string;
+  description: string;
+}
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,7 +18,7 @@ export default function Home() {
   const panoramaRef = useRef<google.maps.StreetViewPanorama | null>(null);
   const [showMap, setShowMap] = useState(false);
   const [currentPosition, setCurrentPosition] = useState<google.maps.LatLng | null>(null);
-  const [selection, setSelection] = useState<{ lat: number; lng: number } | null>(null);
+  const [hints, setHints] = useState<Hint[]>([]);
 
   // Initialize Google Maps loader
   const loader = new Loader({
@@ -49,14 +55,12 @@ export default function Home() {
   const getNewLocation = async () => {
     setIsLoading(true);
     // Clear any existing selection
-    setSelection(null);
     try {
       const google = await loader.load();
       const streetViewService = new google.maps.StreetViewService();
 
       const findValidLocation = async () => {
         const { lat, lng } = getRandomCoordinates();
-        const location = new google.maps.LatLng(lat, lng);
 
         try {
           const result = await streetViewService.getPanorama({
@@ -85,20 +89,9 @@ export default function Home() {
     }
   };
 
-  const hints = [
-    {
-      imageUrl: '/assets/hints/architecture.jpg',
-      description: 'Look for distinctive architectural styles in the region'
-    },
-    {
-      imageUrl: '/assets/hints/vegetation.jpg',
-      description: 'Notice the local vegetation and climate indicators'
-    },
-    {
-      imageUrl: '/assets/hints/signage.jpg',
-      description: 'Pay attention to road signs and local language'
-    }
-  ];
+  const addHint = (hint: Hint) => {
+    setHints(prev => [hint, ...prev]);
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative">
@@ -113,8 +106,8 @@ export default function Home() {
       </div>
 
       <div className="z-10 flex gap-8">        
-        {/* Left side - Street View */}
-        <div className="flex flex-col items-center">
+        {/* Left side - Street View and Hints */}
+        <div className="flex flex-col">
           <div className="relative w-[800px] h-[600px] rounded-lg overflow-hidden">
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
@@ -134,25 +127,27 @@ export default function Home() {
                 <MiniMap 
                   position={currentPosition} 
                   expanded={showMap}
-                  setSelection={setSelection}
                   getNewLocation={getNewLocation}
                 />
               </div>
             )}
           </div>
 
-          <button
-            onClick={getNewLocation}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            disabled={isLoading}
-          >
-            Get New Location
-          </button>
+          {/* Location Hints Section */}
+          <div className="mt-4 w-full bg-black/30 backdrop-blur-sm rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white text-lg font-semibold">Location Hints</h3>
+              <HintSelector 
+                panoramaRef={panoramaRef}
+                onNewHint={addHint}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Right side - Hint Cards */}
         <div className="w-[300px] space-y-4">
-          <h2 className="text-white text-xl font-bold mb-4">Location Hints</h2>
+          <h2 className="text-white text-xl font-bold">Regional Features</h2>
           {hints.map((hint, index) => (
             <HintCard
               key={index}
