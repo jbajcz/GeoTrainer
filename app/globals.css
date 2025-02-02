@@ -19,3 +19,93 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.frame {
+  align-items: center;
+  background-color: #627ec2f2;
+  border-radius: 24px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow: hidden;
+  padding: 52px 64px;
+  position: relative;
+}
+  
+.frame .div {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: center;
+  position: relative;
+}
+  
+.frame .text-wrapper {
+  align-self: stretch;
+  color: #ffffff;
+  font-family: "Source Sans Pro-Bold", Helvetica;
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: normal;
+  margin-top: -1.00px;
+  position: relative;
+  text-align: center;
+}
+
+.frame .p {
+  align-self: stretch;
+  color: #ffffff;
+  font-family: "Source Sans Pro-Regular", Helvetica;
+  font-size: 30px;
+  font-weight: 400;
+  height: 37px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: relative;
+  text-align: center;
+  
+}
+  
+.frame .button {
+  all: unset;
+  box-sizing: border-box;
+  height: 71px;
+  position: relative;
+  width: 225.3px;
+}
+  
+.frame .overlap-group {
+  border-radius: 15px;
+  height: 71px;
+  position: relative;
+  width: 223px;
+}
+  
+.frame .rectangle {
+  background-color: #19224f;
+  border-radius: 15px;
+  height: 71px;
+  left: 0;
+  opacity: 0.9;
+  position: absolute;
+  top: 0;
+  width: 223px;
+}
+
+.frame .text-wrapper-2 {
+  color: #faf4f1;
+  font-family: "Source Sans Pro-Bold", Helvetica;
+  font-size: 25px;
+  font-weight: 700;
+  left: 14px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 20px;
+  white-space: nowrap;
+  width: 197px;
+}
