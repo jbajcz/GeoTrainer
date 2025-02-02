@@ -1,10 +1,11 @@
 'use client';
 import { useState } from 'react';
 import { FaCamera } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 interface HintSelectorProps {
   panoramaRef: React.RefObject<google.maps.StreetViewPanorama | null>;
-  onNewHint: (hint: { imageUrl: string; description: string }) => void;
+  onNewHint: (hint: { imageUrl: string; description: string; context: string }) => void;
 }
 
 const CONTEXTS = [
@@ -12,10 +13,12 @@ const CONTEXTS = [
   'vegetation', 
   'road signs',
   'vehicles',
-  'climate features',
+  'climate',
+  'population',
 ];
 
 export default function HintSelector({ panoramaRef, onNewHint }: HintSelectorProps) {
+  const [selectedContext, setSelectedContext] = useState(CONTEXTS[0]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingContext, setLoadingContext] = useState<string | null>(null);
 
@@ -65,19 +68,39 @@ export default function HintSelector({ panoramaRef, onNewHint }: HintSelectorPro
       });
 
       const { description } = await analysisResponse.json();
+      console.log('description', description)
+      
+      if (description?.trim().toUpperCase() === 'INVALID') {
+        toast.error(`No ${context} features detected. Try looking around for a better view!`, {
+          duration: 4000,
+          position: 'bottom-center',
+          style: {
+            background: '#333',
+            color: '#fff',
+            borderRadius: '8px',
+          },
+        });
+        return;
+      }
       
       if (description) {
         onNewHint({
           imageUrl: base64Data,
-          description: description
+          description: description,
+          context: context
         });
       }
 
     } catch (error) {
       console.error('Error analyzing view:', error);
-      onNewHint({
-        imageUrl: '',
-        description: 'Failed to analyze view'
+      toast.error('Failed to analyze view. Please try again.', {
+        duration: 3000,
+        position: 'bottom-center',
+        style: {
+          background: '#333',
+          color: '#fff',
+          borderRadius: '8px',
+        },
       });
     } finally {
       setIsLoading(false);

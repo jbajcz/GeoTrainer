@@ -9,6 +9,7 @@ import HintSelector from '@/app/components/HintSelector';
 interface Hint {
   imageUrl: string;
   description: string;
+  context: string;
 }
 
 export default function Home() {
@@ -153,6 +154,7 @@ export default function Home() {
               key={index}
               imageUrl={hint.imageUrl}
               description={hint.description}
+              context={hint.context}
             />
           ))}
         </div>

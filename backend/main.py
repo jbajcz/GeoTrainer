@@ -35,7 +35,9 @@ def analyze_image():
     
     file = request.files['file']
     context = request.form['context']
-    
+
+    print('context', context)
+
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
         
@@ -47,15 +49,19 @@ def analyze_image():
         try:
             # Open and encode the image
             with open(filepath, "rb") as image_file:
-                response = client.beta.chat.completions.parse(
+                response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
+                        {
+                            "role": "system",
+                            "content": "You are a geography expert analyzing street view images. Provide concise, factual responses focused on regional characteristics."
+                        },
                         {
                             "role": "user",
                             "content": [
                                 {
-                                    "type": "text",
-                                    "text": f"First, determine if this image represents {context}. If yes, describe what region(s) of the world would typically have architecture, vegetation, or features like this in 1 short phrase (do not include yes or no). If no, respond with a brief explanation of why it does not represent {context} and which category it might fit better."
+                                    "type": "text", 
+                                    "text": f"First, determine if this image represents {context}. If yes, describe what region(s) of the world would typically feature this in 1 short phrase that are specific to the context (do not include yes or no). If no, return the description 'INVALID'."
                                 },
                                 {
                                     "type": "image_url",
@@ -66,21 +72,14 @@ def analyze_image():
                             ]
                         }
                     ],
-                    max_tokens=100,
-                    # response_format={ "type": "json_object" }
+                    max_tokens=100
                 )
-                
             description = response.choices[0].message.content
             print('description', description)
             
             # Clean up uploaded file
             os.remove(filepath)
             
-            if description.strip().upper() == 'INVALID':
-                return jsonify({
-                    'description': None
-                })
-                
             return jsonify({
                 'description': description
             })
