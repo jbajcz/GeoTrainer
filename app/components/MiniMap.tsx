@@ -131,7 +131,7 @@ export default function MiniMap({ position, expanded, getNewLocation }: MiniMapP
         ref={mapRef} 
         className={`
           transition-all duration-300 ease-in-out rounded-lg overflow-hidden border-2 border-white shadow-lg
-          ${expanded ? 'w-[600px] h-[600px]' : 'w-[150px] h-[150px]'}
+          ${expanded ? 'w-[600px] h-[400px]' : 'w-[150px] h-[150px]'}
         `}
       />
       {expanded && !submitted && (
@@ -144,7 +144,7 @@ export default function MiniMap({ position, expanded, getNewLocation }: MiniMapP
       )}
       {expanded && submitted && (
         <div className="mt-2 text-center w-[600px]">
-          <div className="text-xl font-bold text-white">
+          <div className="text-xl font-bold text-white bg-[#627ec2] border-2 border-[#19224f] rounded-lg py-2">
             Score: {score}%
           </div>
           <button
