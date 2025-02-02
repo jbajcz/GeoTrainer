@@ -1,51 +1,31 @@
-from flask import Flask
-import random
-import requests
+from flask import Flask, jsonify
+from openai import OpenAI
 import os
-from io import BytesIO
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
-@app.route("/")
-def hello_world():
-    return "Hello, World!"
+# Load environment variables
+load_dotenv()
 
-@app.route("/random-street-view")
-def random_street_view():
-    # Generate random coordinates
-    lat = random.uniform(-85, 85)  # Valid latitude range
-    lng = random.uniform(-180, 180)  # Valid longitude range
-    
-    # Google Maps Street View API endpoint
-    api_key = os.environ.get('GOOGLE_MAPS_API_KEY')
-    url = f"https://maps.googleapis.com/maps/api/streetview"
-    
-    # Parameters for the Street View request
-    params = {
-        'size': '600x400',  # Image size
-        'location': f'{lat},{lng}',
-        'key': api_key,
-        'return_error_code': True  # To handle locations without street view
-    }
-    
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+@app.route('/haiku', methods=['GET'])
+def generate_haiku():
     try:
-        # Make request to Google Street View API
-        response = requests.get(url, params=params)
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a haiku generator. Create a haiku about artificial intelligence."},
+                {"role": "user", "content": "Generate a haiku about AI."}
+            ]
+        )
         
-        # Check if we got a valid image
-        if response.headers.get('content-type') == 'image/jpeg':
-            return send_file(
-                BytesIO(response.content),
-                mimetype='image/jpeg'
-            )
-        else:
-            # If no street view available, try again with new coordinates
-            return random_street_view()
-            
+        haiku = response.choices[0].message.content
+        return jsonify({"haiku": haiku})
     except Exception as e:
-        return {"error": str(e)}, 500
+        return jsonify({"error": str(e)}), 500
 
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
