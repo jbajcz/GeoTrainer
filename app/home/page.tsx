@@ -1,7 +1,6 @@
-/// <reference types="@types/google.maps" />
+  /// <reference types="@types/google.maps" />
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import { Loader } from '@googlemaps/js-api-loader';
 import MiniMap from '@/app/components/MiniMap';
 import HintCard from '@/app/components/HintCard';
@@ -28,18 +27,27 @@ export default function Home() {
   });
 
   useEffect(() => {
-    loader.load().then((google) => {
+    loader.load().then(async (google) => {
       if (mapRef.current) {
-        const initialPosition = new google.maps.LatLng(40.7128, -74.0060);
-        setCurrentPosition(initialPosition);
+        // Start with a temporary position
+        const tempPosition = new google.maps.LatLng(0, 0);
         panoramaRef.current = new google.maps.StreetViewPanorama(mapRef.current, {
-          position: initialPosition,
+          position: tempPosition,
           pov: { heading: 0, pitch: 0 },
           zoom: 1,
           addressControl: false,
           showRoadLabels: false,
           fullscreenControl: false,
+          panControlOptions: {
+            position: google.maps.ControlPosition.TOP_RIGHT
+          },
+          zoomControlOptions: {
+            position: google.maps.ControlPosition.TOP_RIGHT
+          }
         });
+        
+        // Get first random location
+        await getNewLocation();
       }
     });
   }, []);
@@ -54,7 +62,9 @@ export default function Home() {
 
   const getNewLocation = async () => {
     setIsLoading(true);
-    // Clear any existing selection
+    setHints([]); // Clear hints array
+
+    // Rest of the existing getNewLocation function...
     try {
       const google = await loader.load();
       const streetViewService = new google.maps.StreetViewService();
@@ -94,21 +104,11 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative">
-      <div className="absolute inset-0 -z-10">
-        <Image
-          src="/assets/background.png"
-          alt="Random Street View Background"
-          fill
-          className="object-cover brightness-50"
-          priority
-        />
-      </div>
-
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative bg-[#19224F]">
       <div className="z-10 flex gap-8">        
         {/* Left side - Street View and Hints */}
         <div className="flex flex-col">
-          <div className="relative w-[800px] h-[600px] rounded-lg overflow-hidden">
+          <div className="relative w-[1000px] h-[600px] rounded-lg overflow-hidden">
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                 Loading...
@@ -134,8 +134,8 @@ export default function Home() {
           </div>
 
           {/* Location Hints Section */}
-          <div className="mt-4 w-full bg-black/30 backdrop-blur-sm rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
+          <div className="mt-4 w-[1000px] bg-black/30 backdrop-blur-sm rounded-lg p-3">
+            <div className="flex flex-col items-center gap-3">
               <h3 className="text-white text-lg font-semibold">Location Hints</h3>
               <HintSelector 
                 panoramaRef={panoramaRef}

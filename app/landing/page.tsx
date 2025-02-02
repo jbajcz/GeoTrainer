@@ -12,7 +12,7 @@ export default function Landing() {
           src="/assets/background.png"
           alt="Landing Page Background" 
           fill
-          className="object-cover brightness-50"
+          className="object-cover brightness-100"
           priority
         />
       </div>

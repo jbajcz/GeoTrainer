@@ -27,8 +27,8 @@ export default function MiniMap({ position, expanded, getNewLocation }: MiniMapP
 
     if (!mapInstanceRef.current) {
       mapInstanceRef.current = new google.maps.Map(mapRef.current, {
-        center: new google.maps.LatLng(0, 0),  // Center at 0,0
-        zoom: 1,  // Zoom out to show the whole world
+        center: new google.maps.LatLng(0, 0),
+        zoom: 1,
         mapTypeId: 'roadmap',
         disableDefaultUI: true,
         zoomControl: false,
@@ -43,10 +43,8 @@ export default function MiniMap({ position, expanded, getNewLocation }: MiniMapP
         const clickedPosition = e.latLng;
         if (!clickedPosition) return;
 
-        // Clear ALL previous markers
         clearAllMarkers();
 
-        // Create new user marker
         const newMarker = new google.maps.Marker({
           position: clickedPosition,
           map: mapInstanceRef.current,
@@ -55,21 +53,12 @@ export default function MiniMap({ position, expanded, getNewLocation }: MiniMapP
           }
         });
 
-        markersRef.current.push(newMarker);  // Add to markers array
+        markersRef.current.push(newMarker);
       });
     }
 
-    // Cleanup function
-    return () => {
-      clearAllMarkers();
-      if (actualMarker) {
-        actualMarker.setMap(null);
-      }
-      if (polyline) {
-        polyline.setMap(null);
-      }
-    };
-  }, [position, expanded]);
+    // Remove cleanup function to maintain markers when collapsed
+  }, [position]); // Remove expanded from dependencies
 
   const handleSubmit = () => {
     if (markersRef.current.length === 0 || !mapInstanceRef.current) return;
@@ -148,21 +137,21 @@ export default function MiniMap({ position, expanded, getNewLocation }: MiniMapP
       {expanded && !submitted && (
         <button
           onClick={handleSubmit}
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors w-[600px]"
         >
           Submit Guess
         </button>
       )}
       {expanded && submitted && (
-        <div className="mt-2 text-center">
+        <div className="mt-2 text-center w-[600px]">
           <div className="text-xl font-bold text-white">
             Score: {score}%
           </div>
           <button
             onClick={resetGame}
-            className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+            className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors w-full"
           >
-            Try Again
+            Next Location
           </button>
         </div>
       )}

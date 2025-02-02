@@ -55,7 +55,7 @@ def analyze_image():
                             "content": [
                                 {
                                     "type": "text",
-                                    "text": f"First, determine if this image representsa {context}. If yes, describe what region(s) of the world would typically have architecture, vegetation, or features like this in 1 short phrase (do not include yes or no). If no, respond with 'INVALID'."
+                                    "text": f"First, determine if this image represents {context}. If yes, describe what region(s) of the world would typically have architecture, vegetation, or features like this in 1 short phrase (do not include yes or no). If no, respond with a brief explanation of why it does not represent {context} and which category it might fit better."
                                 },
                                 {
                                     "type": "image_url",
