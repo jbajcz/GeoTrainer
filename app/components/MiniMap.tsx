@@ -28,8 +28,8 @@ export default function MiniMap({ position, expanded, setSelection, getNewLocati
 
     if (!mapInstanceRef.current) {
       mapInstanceRef.current = new google.maps.Map(mapRef.current, {
-        center: position,
-        zoom: 1,
+        center: new google.maps.LatLng(0, 0),  // Center at 0,0
+        zoom: 1,  // Zoom out to show the whole world
         mapTypeId: 'roadmap',
         disableDefaultUI: true,
         zoomControl: false,
@@ -59,8 +59,6 @@ export default function MiniMap({ position, expanded, setSelection, getNewLocati
         markersRef.current.push(newMarker);  // Add to markers array
         setSelection({ lat: clickedPosition.lat(), lng: clickedPosition.lng() });
       });
-    } else {
-      mapInstanceRef.current.setCenter(position);
     }
 
     // Cleanup function

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Loader } from '@googlemaps/js-api-loader';
 import MiniMap from '@/app/components/MiniMap';
+import HintCard from '@/app/components/HintCard';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -84,6 +85,21 @@ export default function Home() {
     }
   };
 
+  const hints = [
+    {
+      imageUrl: '/assets/hints/architecture.jpg',
+      description: 'Look for distinctive architectural styles in the region'
+    },
+    {
+      imageUrl: '/assets/hints/vegetation.jpg',
+      description: 'Notice the local vegetation and climate indicators'
+    },
+    {
+      imageUrl: '/assets/hints/signage.jpg',
+      description: 'Pay attention to road signs and local language'
+    }
+  ];
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative">
       <div className="absolute inset-0 -z-10">
@@ -96,40 +112,55 @@ export default function Home() {
         />
       </div>
 
-      <div className="z-10">        
-        <div className="relative w-[1000px] h-[600px] mb-4 rounded-lg overflow-hidden">
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
-              Loading...
-            </div>
-          )}
-          <div 
-            ref={mapRef} 
-            className="w-full h-full"
-          />
-          {currentPosition && (
+      <div className="z-10 flex gap-8">        
+        {/* Left side - Street View */}
+        <div className="flex flex-col items-center">
+          <div className="relative w-[800px] h-[600px] rounded-lg overflow-hidden">
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+                Loading...
+              </div>
+            )}
             <div 
-              className="absolute bottom-4 right-4 z-10 transition-all duration-300 ease-in-out"
-              onMouseEnter={() => setShowMap(true)}
-              onMouseLeave={() => setShowMap(false)}
-            >
-              <MiniMap 
-                position={currentPosition} 
-                expanded={showMap}
-                setSelection={setSelection}
-                getNewLocation={getNewLocation}
-              />
-            </div>
-          )}
+              ref={mapRef} 
+              className="w-full h-full"
+            />
+            {currentPosition && (
+              <div 
+                className="absolute bottom-4 right-4 z-10 transition-all duration-300 ease-in-out"
+                onMouseEnter={() => setShowMap(true)}
+                onMouseLeave={() => setShowMap(false)}
+              >
+                <MiniMap 
+                  position={currentPosition} 
+                  expanded={showMap}
+                  setSelection={setSelection}
+                  getNewLocation={getNewLocation}
+                />
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={getNewLocation}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            disabled={isLoading}
+          >
+            Get New Location
+          </button>
         </div>
 
-        <button
-          onClick={getNewLocation}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-          disabled={isLoading}
-        >
-          Get New Location
-        </button>
+        {/* Right side - Hint Cards */}
+        <div className="w-[300px] space-y-4">
+          <h2 className="text-white text-xl font-bold mb-4">Location Hints</h2>
+          {hints.map((hint, index) => (
+            <HintCard
+              key={index}
+              imageUrl={hint.imageUrl}
+              description={hint.description}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
